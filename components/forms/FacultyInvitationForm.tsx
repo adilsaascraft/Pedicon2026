@@ -31,7 +31,7 @@ import type {
 export const DRAFT_KEY = 'faculty-invitation-form-draft-v1'
 
 export const EMPTY_FORM: FacultyInvitationFormValues = {
-  invitationType: 'WORKSHOP',
+  invitationType: 'SOLO_TALK',
   group: 'MP',
   name: '',
   email: '',
@@ -214,17 +214,15 @@ export default function FacultyInvitationForm({
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="session-name">Session Name *</Label>
+          <Label htmlFor="faculty-hall">Hall *</Label>
           <Input
-            id="session-name"
-            {...form.register('sessionName')}
-            placeholder="Enter session name"
+            id="faculty-hall"
+            {...form.register('hall')}
+            placeholder="Enter hall"
             disabled={loading}
           />
-          {errors.sessionName && (
-            <p className="text-sm text-destructive">
-              {errors.sessionName.message}
-            </p>
+          {errors.hall && (
+            <p className="text-sm text-destructive">{errors.hall.message}</p>
           )}
         </div>
 
@@ -257,6 +255,21 @@ export default function FacultyInvitationForm({
             )}
           </div>
         )}
+
+        <div className="space-y-2 sm:col-span-2">
+          <Label htmlFor="session-name">Session Name *</Label>
+          <Input
+            id="session-name"
+            {...form.register('sessionName')}
+            placeholder="Enter session name"
+            disabled={loading}
+          />
+          {errors.sessionName && (
+            <p className="text-sm text-destructive">
+              {errors.sessionName.message}
+            </p>
+          )}
+        </div>
 
         <div className="space-y-2">
           <Label htmlFor="faculty-date">Date *</Label>
@@ -301,19 +314,6 @@ export default function FacultyInvitationForm({
           />
           {errors.time && (
             <p className="text-sm text-destructive">{errors.time.message}</p>
-          )}
-        </div>
-
-        <div className="space-y-2 sm:col-span-2">
-          <Label htmlFor="faculty-hall">Hall *</Label>
-          <Input
-            id="faculty-hall"
-            {...form.register('hall')}
-            placeholder="Enter hall"
-            disabled={loading}
-          />
-          {errors.hall && (
-            <p className="text-sm text-destructive">{errors.hall.message}</p>
           )}
         </div>
       </div>

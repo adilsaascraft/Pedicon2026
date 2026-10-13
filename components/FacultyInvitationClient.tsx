@@ -16,6 +16,16 @@ import {
 } from 'lucide-react'
 import { toast } from 'sonner'
 
+import { MoreHorizontal } from 'lucide-react'
+
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
+
 import { DataTable } from '@/components/DataTable'
 import FacultyInvitationForm, {
   EMPTY_FORM,
@@ -280,15 +290,16 @@ export default function FacultyInvitationClient() {
 
     return {
       total: summaryRecords.length,
-      pending: summaryRecords.filter(
-        (item) => getStatus(item) === 'PENDING',
-      ).length,
-      accepted: summaryRecords.filter(
-        (item) => getStatus(item) === 'ACCEPTED',
-      ).length,
-      declined: summaryRecords.filter(
-        (item) => getStatus(item) === 'DECLINED',
-      ).length,
+      pending: summaryRecords.filter((item) => getStatus(item) === 'PENDING')
+        .length,
+      accepted: summaryRecords.filter((item) => getStatus(item) === 'ACCEPTED')
+        .length,
+      declined: summaryRecords.filter((item) => getStatus(item) === 'DECLINED')
+        .length,
+      emailSent: summaryRecords.filter((item) => item.isMailSent === true)
+        .length,
+      emailNotSent: summaryRecords.filter((item) => item.isMailSent !== true)
+        .length,
     }
   }, [invitations, search, typeFilter, groupFilter])
 
@@ -394,6 +405,43 @@ export default function FacultyInvitationClient() {
     }
   }
 
+
+  type InvitationPerson = {
+    name: string
+    contact: string
+  }
+
+  function PeopleCell({ people }: { people?: InvitationPerson[] }) {
+    if (!people?.length) {
+      return <span className="text-sm text-slate-400">—</span>
+    }
+
+    return (
+      <div className="min-w-36 space-y-1.5">
+        <p className="text-xs font-semibold text-slate-500">
+          {people.length} {people.length === 1 ? 'person' : 'people'}
+        </p>
+
+        {people.map((person, index) => (
+          <div
+            key={`${person.name}-${person.contact}-${index}`}
+            className="rounded-md border border-slate-200 bg-slate-50 px-2.5 py-2"
+          >
+            <p className="text-sm font-medium text-slate-800">
+              {person.name || 'Unnamed'}
+            </p>
+
+            {person.contact ? (
+              <p className="break-all text-xs text-muted-foreground">
+                {person.contact}
+              </p>
+            ) : null}
+          </div>
+        ))}
+      </div>
+    )
+  }
+
   const columns = useMemo(
     () => [
       {
@@ -402,9 +450,7 @@ export default function FacultyInvitationClient() {
         size: 210,
         cell: ({ row }: { row: { original: FacultyInvitation } }) => (
           <div className="min-w-40">
-            <p className="font-semibold text-foreground">
-              {row.original.name}
-            </p>
+            <p className="font-semibold text-foreground">{row.original.name}</p>
             <p className="break-all text-xs text-muted-foreground">
               {row.original.email}
             </p>
@@ -431,87 +477,77 @@ export default function FacultyInvitationClient() {
           </div>
         ),
       },
-{
-  id: 'session',
-  header: 'Session / Topic',
-  size: 300,
-  cell: ({ row }: { row: { original: FacultyInvitation } }) => {
-    const item = row.original
 
-    const renderPeople = (
-      title: string,
-      people: { name: string; contact: string }[],
-    ) => {
-      if (!people?.length) return null
+      {
+        id: 'session',
+        header: 'Session / Topic',
+        size: 250,
+        cell: ({ row }: { row: { original: FacultyInvitation } }) => {
+          const item = row.original
 
-      return (
-        <div className="space-y-1">
-          <p className="text-xs font-semibold text-slate-700">
-            {title} ({people.length})
-          </p>
+          return (
+            <div className="min-w-44 space-y-2">
+              <p className="font-medium text-slate-900">
+                {item.sessionName || '—'}
+              </p>
 
-          <div className="space-y-1">
-            {people.map((person, index) => (
-              <div
-                key={`${title}-${person.name}-${person.contact}-${index}`}
-                className="rounded-md bg-slate-50 px-2 py-1"
-              >
-                <p className="text-sm font-medium text-slate-800">
-                  {person.name || 'Unnamed'}
+              <div>
+                <p className="text-xs font-semibold text-slate-500">
+                  {item.invitationType === 'WORKSHOP' ? 'Workshop' : 'Topic'}
                 </p>
-                {person.contact ? (
-                  <p className="text-xs text-muted-foreground">
-                    {person.contact}
-                  </p>
-                ) : null}
+                <p className="text-sm text-slate-700">
+                  {item.invitationType === 'WORKSHOP'
+                    ? item.workshopName || '—'
+                    : item.topic || '—'}
+                </p>
               </div>
-            ))}
-          </div>
-        </div>
-      )
-    }
+            </div>
+          )
+        },
+      },
 
-    return (
-      <div className="min-w-52 space-y-2">
-        <div>
-          <p className="font-medium text-slate-900">
-            {item.sessionName || '—'}
-          </p>
-        </div>
-
-        {item.invitationType === 'WORKSHOP' ? (
-          <div>
-            <p className="text-xs font-semibold text-slate-500">
-              Workshop
-            </p>
-            <p className="text-sm text-slate-700">
-              {item.workshopName || '—'}
-            </p>
-          </div>
-        ) : (
-          <div>
-            <p className="text-xs font-semibold text-slate-500">
-              Topic
-            </p>
-            <p className="text-sm text-slate-700">
-              {item.topic || '—'}
-            </p>
-          </div>
-        )}
-
-        {item.invitationType === 'MODERATOR' &&
-          renderPeople('Panel People', item.panelPeople ?? [])}
-
-        {item.invitationType === 'PANELIST' && (
-          <>
-            {renderPeople('Moderators', item.moderators ?? [])}
-            {renderPeople('Co-panellists', item.coPanellists ?? [])}
-          </>
-        )}
-      </div>
-    )
-  },
-},
+      {
+        id: 'moderators',
+        header: 'Moderators',
+        size: 220,
+        cell: ({ row }: { row: { original: FacultyInvitation } }) => (
+          <PeopleCell
+            people={
+              row.original.invitationType === 'PANELIST'
+                ? row.original.moderators
+                : undefined
+            }
+          />
+        ),
+      },
+      {
+        id: 'coPanellists',
+        header: 'Co-panellists',
+        size: 220,
+        cell: ({ row }: { row: { original: FacultyInvitation } }) => (
+          <PeopleCell
+            people={
+              row.original.invitationType === 'PANELIST'
+                ? row.original.coPanellists
+                : undefined
+            }
+          />
+        ),
+      },
+      {
+        id: 'panelPeople',
+        header: 'Panel People',
+        size: 220,
+        cell: ({ row }: { row: { original: FacultyInvitation } }) => (
+          <PeopleCell
+            people={
+              row.original.invitationType === 'MODERATOR'
+                ? row.original.panelPeople
+                : undefined
+            }
+          />
+        ),
+      },
 
       {
         id: 'schedule',
@@ -534,52 +570,89 @@ export default function FacultyInvitationClient() {
         cell: ({ row }: { row: { original: FacultyInvitation } }) =>
           getStatusBadge(getStatus(row.original)),
       },
+
+      {
+        accessorKey: 'isMailSent',
+        header: 'Email Sent',
+        size: 120,
+        cell: ({ row }: { row: { original: FacultyInvitation } }) => {
+          const isMailSent = row.original.isMailSent === true
+
+          return (
+            <Badge
+              className={
+                isMailSent
+                  ? 'border-0 bg-emerald-100 text-emerald-800 hover:bg-emerald-100'
+                  : 'border-0 bg-rose-100 text-rose-800 hover:bg-rose-100'
+              }
+            >
+              {isMailSent ? (
+                <>
+                  <CheckCircle2 className="mr-1 size-3.5" />
+                  Sent
+                </>
+              ) : (
+                <>
+                  <XCircle className="mr-1 size-3.5" />
+                  Not Sent
+                </>
+              )}
+            </Badge>
+          )
+        },
+      },
+
       {
         id: 'actions',
         header: 'Actions',
-        size: 220,
+        size: 80,
         cell: ({ row }: { row: { original: FacultyInvitation } }) => {
           const invitation = row.original
 
           return (
-            <div className="flex items-center gap-1.5">
-              <Button
-                type="button"
-                size="sm"
-                className="bg-blue-600 text-white hover:bg-blue-700"
-                onClick={() => void openEditForm(invitation)}
-                title="Edit invitation"
-              >
-                <Pencil className="mr-1 size-3.5" />
-                Edit
-              </Button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild={false}>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="icon"
+                  className="size-9"
+                  title="Open invitation actions"
+                  aria-label={`Actions for ${invitation.name}`}
+                >
+                  <MoreHorizontal className="size-4" />
+                </Button>
+              </DropdownMenuTrigger>
 
-              <Button
-                type="button"
-                size="sm"
-                className="bg-rose-600 text-white hover:bg-rose-700"
-                onClick={() =>
-                  setPendingAction({ type: 'DELETE', invitation })
-                }
-                title="Delete invitation"
-              >
-                <Trash2 className="mr-1 size-3.5" />
-                Delete
-              </Button>
+              <DropdownMenuContent align="end" className="w-48">
+                <DropdownMenuItem onClick={() => void openEditForm(invitation)}>
+                  <Pencil className="mr-2 size-4 text-blue-600" />
+                  Edit invitation
+                </DropdownMenuItem>
 
-              <Button
-                type="button"
-                size="sm"
-                className="bg-emerald-600 text-white hover:bg-emerald-700"
-                onClick={() =>
-                  setPendingAction({ type: 'EMAIL', invitation })
-                }
-                title="Send invitation email"
-              >
-                <Mail className="mr-1 size-3.5" />
-                Email
-              </Button>
-            </div>
+                <DropdownMenuItem
+                  onClick={() => {
+                    setPageError('')
+                    setPendingAction({ type: 'EMAIL', invitation })
+                  }}
+                >
+                  <Mail className="mr-2 size-4 text-emerald-600" />
+                  Send invitation email
+                </DropdownMenuItem>
+
+                <DropdownMenuSeparator />
+
+                <DropdownMenuItem
+                  className="text-rose-600 focus:text-rose-600"
+                  onClick={() =>
+                    setPendingAction({ type: 'DELETE', invitation })
+                  }
+                >
+                  <Trash2 className="mr-2 size-4" />
+                  Delete invitation
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           )
         },
       },
@@ -657,6 +730,7 @@ export default function FacultyInvitationClient() {
         'Moderators',
         'Co-Panellists',
         'Response Status',
+        'Email Sent',
         'Responded At',
         'Created At',
         'Updated At',
@@ -699,6 +773,7 @@ export default function FacultyInvitationClient() {
             formatPeople(item.moderators),
             formatPeople(item.coPanellists),
             item.responseStatus ?? 'PENDING',
+            item.isMailSent ?? 'false',
             formatExcelDate(item.respondedAt),
             formatExcelDate(item.createdAt),
             formatExcelDate(item.updatedAt),
@@ -783,7 +858,6 @@ export default function FacultyInvitationClient() {
           </Button>
         </div>
       </div>
-
       {pageError ? (
         <div
           role="alert"
@@ -799,7 +873,6 @@ export default function FacultyInvitationClient() {
           </button>
         </div>
       ) : null}
-
       {/* Search and filters */}
       <div className="space-y-3 rounded-xl border bg-white p-3 sm:p-4">
         <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-[minmax(220px,1fr)_190px_170px_190px_auto]">
@@ -896,7 +969,7 @@ export default function FacultyInvitationClient() {
           Select an invitation type to see the groups available for that type.
         </p>
       </div>
-
+      
       {/* Counts follow the current type, group, and search filters */}
       <div className="flex flex-wrap items-center gap-2 text-sm">
         <span className="rounded-md bg-slate-100 px-3 py-1.5 text-slate-700">
@@ -915,11 +988,19 @@ export default function FacultyInvitationClient() {
           Declined: <strong>{statusSummary.declined}</strong>
         </span>
 
+        <span className="rounded-md bg-green-100 px-3 py-1.5 text-green-800">
+          Email Sent: <strong>{statusSummary.emailSent}</strong>
+        </span>
+
+        <span className="rounded-md bg-orange-100 px-3 py-1.5 text-orange-800">
+          Email Not Sent: <strong>{statusSummary.emailNotSent}</strong>
+        </span>
+
         <span className="ml-auto text-muted-foreground">
           Showing {filteredInvitations.length} of {invitations.length}
         </span>
       </div>
-
+      
       {/* DataTable handles pagination through its configured pagination component */}
       <DataTable
         columns={columns}
@@ -931,7 +1012,6 @@ export default function FacultyInvitationClient() {
             : 'No faculty invitations found.'
         }
       />
-
       {/* Create / edit dialog */}
       <Dialog
         open={formOpen}
@@ -992,7 +1072,6 @@ export default function FacultyInvitationClient() {
           </div>
         </DialogContent>
       </Dialog>
-
       {/* Delete / send-email confirmation */}
       <AlertDialog
         open={Boolean(pendingAction)}
@@ -1006,13 +1085,120 @@ export default function FacultyInvitationClient() {
             <AlertDialogTitle>{actionTitle}</AlertDialogTitle>
             <AlertDialogDescription>{actionDescription}</AlertDialogDescription>
           </AlertDialogHeader>
+          {pendingAction?.type === 'EMAIL' && (
+            <div className="max-h-[55vh] space-y-4 overflow-y-auto rounded-xl border bg-slate-50 p-4">
+              {(() => {
+                const item = pendingAction.invitation
+
+                const detail = (label: string, value?: string | null) => (
+                  <div className="min-w-0 space-y-1">
+                    <p className="text-xs font-medium text-slate-500">
+                      {label}
+                    </p>
+                    <p className="break-words text-sm font-medium text-slate-900">
+                      {value || '—'}
+                    </p>
+                  </div>
+                )
+
+                const people = (
+                  title: string,
+                  entries: { name: string; contact: string }[],
+                ) =>
+                  entries.length > 0 ? (
+                    <div className="space-y-2">
+                      <h4 className="text-sm font-semibold text-slate-800">
+                        {title}
+                      </h4>
+                      <div className="grid gap-2 sm:grid-cols-2">
+                        {entries.map((person, index) => (
+                          <div
+                            key={`${title}-${person.name}-${index}`}
+                            className="rounded-lg border bg-white p-3"
+                          >
+                            <p className="text-sm font-medium">
+                              {person.name || 'Unnamed'}
+                            </p>
+                            <p className="text-xs text-muted-foreground">
+                              {person.contact || 'No contact'}
+                            </p>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ) : null
+
+                return (
+                  <>
+                    <div className="flex items-center justify-between gap-3">
+                      <h3 className="font-semibold text-slate-900">
+                        Invitation Preview
+                      </h3>
+                      <Badge className="border-0 bg-indigo-100 text-indigo-800">
+                        {item.invitationType.replaceAll('_', ' ')}
+                      </Badge>
+                    </div>
+
+                    <div className="rounded-lg border bg-white p-4">
+                      <div className="mb-4 border-b pb-3">
+                        <p className="text-xs font-medium text-slate-500">
+                          Email recipient
+                        </p>
+                        <p className="break-all font-semibold text-slate-900">
+                          {item.name}
+                        </p>
+                        <p className="break-all text-sm text-muted-foreground">
+                          {item.email}
+                        </p>
+                      </div>
+
+                      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                        {detail(
+                          'Group',
+                          item.group === 'OUT_OF_MP' ? 'Out of MP' : 'MP',
+                        )}
+                        {detail('Session', item.sessionName)}
+                        {detail(
+                          item.invitationType === 'WORKSHOP'
+                            ? 'Workshop'
+                            : 'Topic',
+                          item.invitationType === 'WORKSHOP'
+                            ? item.workshopName
+                            : item.topic,
+                        )}
+                        {detail('Date', item.date)}
+                        {detail('Time', item.time)}
+                        {detail('Hall', item.hall)}
+                        {detail('Mobile', item.mobile)}
+                      </div>
+                    </div>
+
+                    {item.invitationType === 'PANELIST' && (
+                      <>
+                        {people('Moderators', item.moderators ?? [])}
+                        {people('Co-panellists', item.coPanellists ?? [])}
+                      </>
+                    )}
+
+                    {item.invitationType === 'MODERATOR' &&
+                      people('Panel People', item.panelPeople ?? [])}
+
+                    <p className="text-xs text-muted-foreground">
+                      Review these details before sending. This preview displays
+                      the invitation data; the actual email content is generated
+                      by your backend.
+                    </p>
+                  </>
+                )
+              })()}
+            </div>
+          )}
 
           {pageError ? (
             <p role="alert" className="text-sm text-rose-600">
               {pageError}
             </p>
           ) : null}
-
           <AlertDialogFooter>
             <AlertDialogCancel disabled={actionLoading}>
               Cancel

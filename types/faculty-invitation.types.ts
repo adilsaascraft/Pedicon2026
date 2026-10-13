@@ -122,6 +122,7 @@ export interface FacultyInvitation {
   moderators?: PanelPerson[]
   coPanellists?: PanelPerson[]
   panelPeople?: PanelPerson[]
+  isMailSent?: boolean
   responseStatus: ResponseStatus
   respondedAt?: string | null
   createdAt?: string
