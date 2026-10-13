@@ -38,7 +38,9 @@ function formatInvitationDate(value: string): string {
   })
 }
 
-function normalizePanelPeople(people: PanelPerson[] | undefined): PanelPerson[] {
+function normalizePanelPeople(
+  people: PanelPerson[] | undefined,
+): PanelPerson[] {
   return (people ?? []).map((person) => ({
     name: person.name.trim(),
     contact: person.contact.trim(),
@@ -98,7 +100,10 @@ export function buildFacultyInvitationPayload(
   }
 }
 
-async function readResponse<T>(response: Response, fallbackMessage: string): Promise<T> {
+async function readResponse<T>(
+  response: Response,
+  fallbackMessage: string,
+): Promise<T> {
   const result: unknown = await response.json().catch(() => null)
 
   if (!response.ok) {
@@ -162,17 +167,17 @@ export async function getFacultyInvitationById(
     },
   )
 
-  const result = await readResponse<FacultyInvitationDetailResponse | FacultyInvitation>(
-    response,
-    'Unable to fetch faculty invitation.',
-  )
+  const result = await readResponse<
+    FacultyInvitationDetailResponse | FacultyInvitation
+  >(response, 'Unable to fetch faculty invitation.')
 
   // Support either a direct record response or the common { data: record } shape.
   if ('_id' in result) return result
 
   const data = result.data
   if (data && '_id' in data) return data
-  if (data && 'data' in data && data.data && '_id' in data.data) return data.data
+  if (data && 'data' in data && data.data && '_id' in data.data)
+    return data.data
 
   throw new Error('The server response did not contain a faculty invitation.')
 }
