@@ -257,7 +257,7 @@ export default function FacultyInvitationForm({
         )}
 
         <div className="space-y-2 sm:col-span-2">
-          <Label htmlFor="session-name">Session Name *</Label>
+          <Label htmlFor="session-name">Session Name</Label>
           <Input
             id="session-name"
             {...form.register('sessionName')}
@@ -327,7 +327,7 @@ export default function FacultyInvitationForm({
             fieldName="moderators"
             form={form}
             loading={loading}
-            onAdd={() => appendModerator({ name: '', contact: '' })}
+            onAdd={() => appendModerator({ name: '', contact: '', email: '' })}
             onRemove={removeModerator}
           />
 
@@ -338,7 +338,9 @@ export default function FacultyInvitationForm({
             fieldName="coPanellists"
             form={form}
             loading={loading}
-            onAdd={() => appendCoPanellist({ name: '', contact: '' })}
+            onAdd={() =>
+              appendCoPanellist({ name: '', contact: '', email: '' })
+            }
             onRemove={removeCoPanellist}
           />
         </div>
@@ -352,7 +354,7 @@ export default function FacultyInvitationForm({
           fieldName="panelPeople"
           form={form}
           loading={loading}
-          onAdd={() => appendPanelPerson({ name: '', contact: '' })}
+          onAdd={() => appendPanelPerson({ name: '', contact: '', email: '' })}
           onRemove={removePanelPerson}
         />
       )}
@@ -430,10 +432,15 @@ function PeopleSection({
         const nameError = form.getFieldState(namePath).error?.message
         const contactError = form.getFieldState(contactPath).error?.message
 
+        const emailPath =
+          `${fieldName}.${index}.email` as FieldPath<FacultyInvitationFormValues>
+
+        const emailError = form.getFieldState(emailPath).error?.message
+
         return (
           <div
             key={person.id}
-            className="grid grid-cols-1 items-start gap-3 rounded-lg bg-muted/30 p-3 sm:grid-cols-[1fr_1fr_auto]"
+            className="grid grid-cols-1 items-start gap-3 rounded-lg bg-muted/30 p-3 sm:grid-cols-[1fr_1fr_1fr_auto]"
           >
             <div className="space-y-2">
               <Label htmlFor={`${fieldName}-${index}-name`}>
@@ -464,6 +471,20 @@ function PeopleSection({
               />
               {contactError && (
                 <p className="text-sm text-destructive">{contactError}</p>
+              )}
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor={`${fieldName}-${index}-email`}>Email *</Label>
+              <Input
+                id={`${fieldName}-${index}-email`}
+                type="email"
+                {...form.register(emailPath)}
+                placeholder="Enter email address"
+                disabled={loading}
+              />
+              {emailError && (
+                <p className="text-sm text-destructive">{emailError}</p>
               )}
             </div>
 

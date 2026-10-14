@@ -44,6 +44,7 @@ function normalizePanelPeople(
   return (people ?? []).map((person) => ({
     name: person.name.trim(),
     contact: person.contact.trim(),
+    email: person.email.trim(),
   }))
 }
 

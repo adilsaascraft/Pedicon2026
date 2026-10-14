@@ -1,8 +1,13 @@
-import { z } from 'zod'
+import { email, z } from 'zod'
 
 const panelPersonSchema = z.object({
   name: z.string().trim().min(1, 'Name is required'),
   contact: z.string().trim().min(1, 'Contact is required'),
+  email: z
+    .string()
+    .trim()
+    .min(1, 'Email is required')
+    .email('Enter a valid email address'),
 })
 
 export const facultyInvitationSchema = z
@@ -17,7 +22,7 @@ export const facultyInvitationSchema = z
       .email('Enter a valid email address'),
     // Optional in the API payload; keep an empty string in form state.
     mobile: z.string().trim(),
-    sessionName: z.string().trim().min(1, 'Session name is required'),
+    sessionName: z.string().trim(),
     topic: z.string().trim(),
     workshopName: z.string().trim(),
     date: z.string().trim().min(1, 'Date is required'),

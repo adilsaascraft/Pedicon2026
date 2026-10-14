@@ -409,6 +409,7 @@ export default function FacultyInvitationClient() {
   type InvitationPerson = {
     name: string
     contact: string
+    email: string
   }
 
   function PeopleCell({ people }: { people?: InvitationPerson[] }) {
@@ -434,6 +435,12 @@ export default function FacultyInvitationClient() {
             {person.contact ? (
               <p className="break-all text-xs text-muted-foreground">
                 {person.contact}
+              </p>
+            ) : null}
+
+            {person.email ? (
+              <p className="break-all text-xs text-muted-foreground">
+                {person.email}
               </p>
             ) : null}
           </div>
@@ -745,14 +752,19 @@ export default function FacultyInvitationClient() {
         return `"${safeText.replace(/"/g, '""')}"`
       }
 
-      const formatPeople = (
-        people: Array<{ name?: string; contact?: string }> | null | undefined,
-      ): string =>
-        (people ?? [])
-          .map((person) =>
-            [person.name, person.contact].filter(Boolean).join(' - '),
-          )
-          .join('; ')
+      
+const formatPeople = (
+  people:
+    | Array<{ name?: string; contact?: string; email?: string }>
+    | null
+    | undefined,
+): string =>
+  (people ?? [])
+    .map((person) =>
+      [person.name, person.contact, person.email].filter(Boolean).join(' - '),
+    )
+    .join('; ')
+
 
       const csvRows = [
         headers.map(escapeCsv).join(','),
@@ -1101,32 +1113,33 @@ export default function FacultyInvitationClient() {
                   </div>
                 )
 
-                const people = (
-                  title: string,
-                  entries: { name: string; contact: string }[],
-                ) =>
-                  entries.length > 0 ? (
-                    <div className="space-y-2">
-                      <h4 className="text-sm font-semibold text-slate-800">
-                        {title}
-                      </h4>
-                      <div className="grid gap-2 sm:grid-cols-2">
-                        {entries.map((person, index) => (
-                          <div
-                            key={`${title}-${person.name}-${index}`}
-                            className="rounded-lg border bg-white p-3"
-                          >
-                            <p className="text-sm font-medium">
-                              {person.name || 'Unnamed'}
-                            </p>
-                            <p className="text-xs text-muted-foreground">
-                              {person.contact || 'No contact'}
-                            </p>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  ) : null
+                
+const people = (
+  title: string,
+  entries: { name: string; contact: string; email: string }[],
+) =>
+  entries.length > 0 ? (
+    <div className="space-y-2">
+      <h4 className="text-sm font-semibold text-slate-800">{title}</h4>
+      <div className="grid gap-2 sm:grid-cols-2">
+        {entries.map((person, index) => (
+          <div
+            key={`${title}-${person.name}-${index}`}
+            className="rounded-lg border bg-white p-3"
+          >
+            <p className="text-sm font-medium">{person.name || 'Unnamed'}</p>
+            <p className="text-xs text-muted-foreground">
+              {person.contact || 'No contact'}
+            </p>
+
+            <p className="break-all text-xs text-muted-foreground">
+              {person.email || 'No email'}
+            </p>
+          </div>
+        ))}
+      </div>
+    </div>
+  ) : null
 
                 return (
                   <>
@@ -1157,7 +1170,11 @@ export default function FacultyInvitationClient() {
                           'Group',
                           item.group === 'OUT_OF_MP' ? 'Out of MP' : 'MP',
                         )}
-                        {detail('Session', item.sessionName)}
+
+                        {item.sessionName
+                          ? detail('Session', item.sessionName)
+                          : null}
+
                         {detail(
                           item.invitationType === 'WORKSHOP'
                             ? 'Workshop'

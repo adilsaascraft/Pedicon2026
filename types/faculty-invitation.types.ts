@@ -16,6 +16,7 @@ export type ResponseStatus = (typeof RESPONSE_STATUSES)[number]
 export interface PanelPerson {
   name: string
   contact: string
+  email: string
 }
 
 /**
