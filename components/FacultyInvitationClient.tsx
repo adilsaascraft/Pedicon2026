@@ -115,10 +115,12 @@ function getStatusBadge(status: ResponseStatus) {
 
 function formatInvitationType(type: InvitationType) {
   switch (type) {
-    case 'SOLO_TALK_ALL_COMPLIMENTARY':
-      return 'Solo Talk - All Complimentary'
     case 'SOLO_TALK':
       return 'Solo Talk'
+    case 'SOLO_TALK_REIMBURSEMENT':
+      return 'Solo Talk - Reimbursement'
+    case 'SOLO_TALK_ALL_COMPLIMENTARY':
+      return 'Solo Talk - All Complimentary'
     case 'WORKSHOP':
       return 'Workshop'
     case 'PANELIST':
@@ -936,6 +938,9 @@ const formatPeople = (
               <SelectItem value="SOLO_TALK_ALL_COMPLIMENTARY">
                 Solo Talk - All Complimentary
               </SelectItem>
+              <SelectItem value="SOLO_TALK_REIMBURSEMENT">
+                Solo Talk - Reimbursement
+              </SelectItem>
               <SelectItem value="PANELIST">Panelist</SelectItem>
               <SelectItem value="MODERATOR">Moderator</SelectItem>
             </SelectContent>
@@ -1173,7 +1178,7 @@ const formatPeople = (
                         Invitation Preview
                       </h3>
                       <Badge className="border-0 bg-indigo-100 text-indigo-800">
-                        {item.invitationType.replaceAll('_', ' ')}
+                        {formatInvitationType(item.invitationType)}
                       </Badge>
                     </div>
 

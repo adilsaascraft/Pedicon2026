@@ -1,6 +1,7 @@
 export const INVITATION_TYPES = [
   'WORKSHOP',
   'SOLO_TALK',
+  'SOLO_TALK_REIMBURSEMENT',
   'SOLO_TALK_ALL_COMPLIMENTARY',
   'PANELIST',
   'MODERATOR',
@@ -76,6 +77,17 @@ export interface SoloTalkInvitationPayload extends FacultyInvitationBasePayload 
   panelPeople?: never
 }
 
+/** POST /api/faculty-invitations — SOLO_TALK_REIMBURSEMENT payload. */
+export interface SoloTalkReimbursementInvitationPayload
+  extends FacultyInvitationBasePayload {
+  invitationType: 'SOLO_TALK_REIMBURSEMENT'
+  topic: string
+  workshopName?: never
+  moderators?: never
+  coPanellists?: never
+  panelPeople?: never
+}
+
 
 /** POST /api/faculty-invitations — SOLO_TALK_ALL_COMPLIMENTARY payload. */
 export interface SoloTalkAllComplimentaryInvitationPayload
@@ -112,6 +124,7 @@ export interface ModeratorInvitationPayload extends FacultyInvitationBasePayload
 export type FacultyInvitationPayload =
   | WorkshopInvitationPayload
   | SoloTalkInvitationPayload
+  | SoloTalkReimbursementInvitationPayload
   | SoloTalkAllComplimentaryInvitationPayload
   | PanelistInvitationPayload
   | ModeratorInvitationPayload

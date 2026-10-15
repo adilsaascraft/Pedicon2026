@@ -63,7 +63,13 @@ export function buildFacultyInvitationPayload(
     readonly InvitationType[]
   > = {
     OUT_OF_MP: ['SOLO_TALK', 'PANELIST', 'MODERATOR', 'WORKSHOP'],
-    NCD: ['SOLO_TALK', 'SOLO_TALK_ALL_COMPLIMENTARY', 'PANELIST', 'MODERATOR'],
+    NCD: [
+      'SOLO_TALK',
+      'SOLO_TALK_REIMBURSEMENT',
+      'SOLO_TALK_ALL_COMPLIMENTARY',
+      'PANELIST',
+      'MODERATOR',
+    ],
     MP: ['SOLO_TALK', 'PANELIST', 'MODERATOR', 'WORKSHOP'],
   }
 
@@ -94,6 +100,7 @@ export function buildFacultyInvitationPayload(
 
   if (
     values.invitationType === 'SOLO_TALK' ||
+    values.invitationType === 'SOLO_TALK_REIMBURSEMENT' ||
     values.invitationType === 'SOLO_TALK_ALL_COMPLIMENTARY'
   ) {
     return {

@@ -67,6 +67,10 @@ const INVITATION_CATEGORIES: Record<
   NCD: [
     { value: 'SOLO_TALK', label: 'Solo Talk' },
     {
+      value: 'SOLO_TALK_REIMBURSEMENT',
+      label: 'Solo Talk - Reimbursement',
+    },
+    {
       value: 'SOLO_TALK_ALL_COMPLIMENTARY',
       label: 'Solo Talk - All Complimentary',
     },

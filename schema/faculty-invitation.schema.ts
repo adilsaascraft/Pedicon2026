@@ -15,6 +15,7 @@ export const facultyInvitationSchema = z
     invitationType: z.enum([
       'WORKSHOP',
       'SOLO_TALK',
+      'SOLO_TALK_REIMBURSEMENT',
       'SOLO_TALK_ALL_COMPLIMENTARY',
       'PANELIST',
       'MODERATOR',
