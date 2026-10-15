@@ -114,11 +114,29 @@ function getStatusBadge(status: ResponseStatus) {
 }
 
 function formatInvitationType(type: InvitationType) {
-  return type.replaceAll('_', ' ')
+  switch (type) {
+    case 'SOLO_TALK_ALL_COMPLIMENTARY':
+      return 'Solo Talk - All Complimentary'
+    case 'SOLO_TALK':
+      return 'Solo Talk'
+    case 'WORKSHOP':
+      return 'Workshop'
+    case 'PANELIST':
+      return 'Panelist'
+    case 'MODERATOR':
+      return 'Moderator'
+  }
 }
 
 function formatInvitationGroup(group: InvitationGroup) {
-  return group === 'OUT_OF_MP' ? 'Out of MP' : 'MP'
+  switch (group) {
+    case 'OUT_OF_MP':
+      return 'Out of MP'
+    case 'NCD':
+      return 'NCD'
+    case 'MP':
+      return 'MP'
+  }
 }
 
 function toFormValues(
@@ -618,17 +636,12 @@ export default function FacultyInvitationClient() {
 
           return (
             <DropdownMenu>
-              <DropdownMenuTrigger asChild={false}>
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="icon"
-                  className="size-9"
-                  title="Open invitation actions"
-                  aria-label={`Actions for ${invitation.name}`}
-                >
-                  <MoreHorizontal className="size-4" />
-                </Button>
+              <DropdownMenuTrigger
+                className="inline-flex size-9 items-center justify-center rounded-md border border-input bg-background hover:bg-accent hover:text-accent-foreground"
+                title="Open invitation actions"
+                aria-label={`Actions for ${invitation.name}`}
+              >
+                <MoreHorizontal className="size-4" />
               </DropdownMenuTrigger>
 
               <DropdownMenuContent align="end" className="w-48">
@@ -920,6 +933,9 @@ const formatPeople = (
               <SelectItem value="ALL">All invitation types</SelectItem>
               <SelectItem value="WORKSHOP">Workshop</SelectItem>
               <SelectItem value="SOLO_TALK">Solo Talk</SelectItem>
+              <SelectItem value="SOLO_TALK_ALL_COMPLIMENTARY">
+                Solo Talk - All Complimentary
+              </SelectItem>
               <SelectItem value="PANELIST">Panelist</SelectItem>
               <SelectItem value="MODERATOR">Moderator</SelectItem>
             </SelectContent>
@@ -937,12 +953,18 @@ const formatPeople = (
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="ALL">All groups</SelectItem>
-              {availableGroups.includes('MP') ? (
+
+              {availableGroups.includes('MP') && (
                 <SelectItem value="MP">MP</SelectItem>
-              ) : null}
-              {availableGroups.includes('OUT_OF_MP') ? (
+              )}
+
+              {availableGroups.includes('OUT_OF_MP') && (
                 <SelectItem value="OUT_OF_MP">Out of MP</SelectItem>
-              ) : null}
+              )}
+
+              {availableGroups.includes('NCD') && (
+                <SelectItem value="NCD">NCD</SelectItem>
+              )}
             </SelectContent>
           </Select>
 
@@ -981,7 +1003,7 @@ const formatPeople = (
           Select an invitation type to see the groups available for that type.
         </p>
       </div>
-      
+
       {/* Counts follow the current type, group, and search filters */}
       <div className="flex flex-wrap items-center gap-2 text-sm">
         <span className="rounded-md bg-slate-100 px-3 py-1.5 text-slate-700">
@@ -1012,7 +1034,7 @@ const formatPeople = (
           Showing {filteredInvitations.length} of {invitations.length}
         </span>
       </div>
-      
+
       {/* DataTable handles pagination through its configured pagination component */}
       <DataTable
         columns={columns}
@@ -1113,33 +1135,36 @@ const formatPeople = (
                   </div>
                 )
 
-                
-const people = (
-  title: string,
-  entries: { name: string; contact: string; email: string }[],
-) =>
-  entries.length > 0 ? (
-    <div className="space-y-2">
-      <h4 className="text-sm font-semibold text-slate-800">{title}</h4>
-      <div className="grid gap-2 sm:grid-cols-2">
-        {entries.map((person, index) => (
-          <div
-            key={`${title}-${person.name}-${index}`}
-            className="rounded-lg border bg-white p-3"
-          >
-            <p className="text-sm font-medium">{person.name || 'Unnamed'}</p>
-            <p className="text-xs text-muted-foreground">
-              {person.contact || 'No contact'}
-            </p>
+                const people = (
+                  title: string,
+                  entries: { name: string; contact: string; email: string }[],
+                ) =>
+                  entries.length > 0 ? (
+                    <div className="space-y-2">
+                      <h4 className="text-sm font-semibold text-slate-800">
+                        {title}
+                      </h4>
+                      <div className="grid gap-2 sm:grid-cols-2">
+                        {entries.map((person, index) => (
+                          <div
+                            key={`${title}-${person.name}-${index}`}
+                            className="rounded-lg border bg-white p-3"
+                          >
+                            <p className="text-sm font-medium">
+                              {person.name || 'Unnamed'}
+                            </p>
+                            <p className="text-xs text-muted-foreground">
+                              {person.contact || 'No contact'}
+                            </p>
 
-            <p className="break-all text-xs text-muted-foreground">
-              {person.email || 'No email'}
-            </p>
-          </div>
-        ))}
-      </div>
-    </div>
-  ) : null
+                            <p className="break-all text-xs text-muted-foreground">
+                              {person.email || 'No email'}
+                            </p>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ) : null
 
                 return (
                   <>
@@ -1166,10 +1191,7 @@ const people = (
                       </div>
 
                       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                        {detail(
-                          'Group',
-                          item.group === 'OUT_OF_MP' ? 'Out of MP' : 'MP',
-                        )}
+                        {detail('Group', formatInvitationGroup(item.group))}
 
                         {item.sessionName
                           ? detail('Session', item.sessionName)

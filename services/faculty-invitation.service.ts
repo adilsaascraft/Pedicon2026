@@ -6,6 +6,8 @@ import type {
   FacultyInvitationMutationResponse,
   FacultyInvitationPayload,
   FacultyInvitationsListResponse,
+  InvitationGroup,
+  InvitationType,
   PanelPerson,
   SendFacultyInvitationEmailResponse,
 } from '@/types/faculty-invitation.types'
@@ -55,6 +57,21 @@ function normalizePanelPeople(
 export function buildFacultyInvitationPayload(
   values: FacultyInvitationFormValues,
 ): FacultyInvitationPayload {
+
+  const allowedTypesByGroup: Record<
+    InvitationGroup,
+    readonly InvitationType[]
+  > = {
+    OUT_OF_MP: ['SOLO_TALK', 'PANELIST', 'MODERATOR', 'WORKSHOP'],
+    NCD: ['SOLO_TALK', 'SOLO_TALK_ALL_COMPLIMENTARY', 'PANELIST', 'MODERATOR'],
+    MP: ['SOLO_TALK', 'PANELIST', 'MODERATOR', 'WORKSHOP'],
+  }
+
+  if (!allowedTypesByGroup[values.group].includes(values.invitationType)) {
+    throw new Error(
+      `${values.invitationType} is not allowed for the ${values.group} group.`,
+    )
+  }
   const common = {
     invitationType: values.invitationType,
     group: values.group,
@@ -75,10 +92,13 @@ export function buildFacultyInvitationPayload(
     }
   }
 
-  if (values.invitationType === 'SOLO_TALK') {
+  if (
+    values.invitationType === 'SOLO_TALK' ||
+    values.invitationType === 'SOLO_TALK_ALL_COMPLIMENTARY'
+  ) {
     return {
       ...common,
-      invitationType: 'SOLO_TALK',
+      invitationType: values.invitationType,
       topic: values.topic.trim(),
     }
   }

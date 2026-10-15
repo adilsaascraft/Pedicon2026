@@ -1,4 +1,4 @@
-import { email, z } from 'zod'
+import { z } from 'zod'
 
 const panelPersonSchema = z.object({
   name: z.string().trim().min(1, 'Name is required'),
@@ -12,8 +12,14 @@ const panelPersonSchema = z.object({
 
 export const facultyInvitationSchema = z
   .object({
-    invitationType: z.enum(['WORKSHOP', 'SOLO_TALK', 'PANELIST', 'MODERATOR']),
-    group: z.enum(['MP', 'OUT_OF_MP']),
+    invitationType: z.enum([
+      'WORKSHOP',
+      'SOLO_TALK',
+      'SOLO_TALK_ALL_COMPLIMENTARY',
+      'PANELIST',
+      'MODERATOR',
+    ]),
+    group: z.enum(['MP', 'OUT_OF_MP', 'NCD']),
     name: z.string().trim().min(1, 'Faculty name is required'),
     email: z
       .string()

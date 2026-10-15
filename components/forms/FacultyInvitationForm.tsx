@@ -47,6 +47,34 @@ export const EMPTY_FORM: FacultyInvitationFormValues = {
   panelPeople: [],
 }
 
+
+const INVITATION_CATEGORIES: Record<
+  InvitationGroup,
+  { value: InvitationType; label: string }[]
+> = {
+  MP: [
+    { value: 'SOLO_TALK', label: 'Solo Talk' },
+    { value: 'PANELIST', label: 'Panelist' },
+    { value: 'MODERATOR', label: 'Moderator' },
+    { value: 'WORKSHOP', label: 'Workshop' },
+  ],
+  OUT_OF_MP: [
+    { value: 'SOLO_TALK', label: 'Solo Talk' },
+    { value: 'PANELIST', label: 'Panelist' },
+    { value: 'MODERATOR', label: 'Moderator' },
+    { value: 'WORKSHOP', label: 'Workshop' },
+  ],
+  NCD: [
+    { value: 'SOLO_TALK', label: 'Solo Talk' },
+    {
+      value: 'SOLO_TALK_ALL_COMPLIMENTARY',
+      label: 'Solo Talk - All Complimentary',
+    },
+    { value: 'PANELIST', label: 'Panelist' },
+    { value: 'MODERATOR', label: 'Moderator' },
+  ],
+}
+
 interface Props {
   initialValues: FacultyInvitationFormValues
   loading: boolean
@@ -96,6 +124,7 @@ export default function FacultyInvitationForm({
 
   const invitationType = form.watch('invitationType')
   const group = form.watch('group')
+  const availableCategories = INVITATION_CATEGORIES[group]
 
   useEffect(() => {
     const subscription = form.watch((values) => {
@@ -119,6 +148,56 @@ export default function FacultyInvitationForm({
     <form onSubmit={handleSubmit} className="space-y-6">
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <div className="space-y-2">
+          <Label>Group *</Label>
+          <Select
+            value={group}
+            onValueChange={(value) => {
+              if (!value) return
+
+              const nextGroup = value as InvitationGroup
+              const allowedCategories = INVITATION_CATEGORIES[nextGroup]
+              const currentType = form.getValues('invitationType')
+
+              form.setValue('group', nextGroup, {
+                shouldDirty: true,
+                shouldValidate: true,
+              })
+
+              if (
+                !allowedCategories.some(
+                  (category) => category.value === currentType,
+                )
+              ) {
+                form.setValue('invitationType', allowedCategories[0].value, {
+                  shouldDirty: true,
+                  shouldValidate: true,
+                })
+
+                // Clear fields belonging to the previous category.
+                form.setValue('topic', '')
+                form.setValue('workshopName', '')
+                form.setValue('moderators', [])
+                form.setValue('coPanellists', [])
+                form.setValue('panelPeople', [])
+              }
+            }}
+            disabled={loading}
+          >
+            <SelectTrigger className="w-full">
+              <SelectValue placeholder="Select group" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="MP">MP</SelectItem>
+              <SelectItem value="OUT_OF_MP">Out of MP</SelectItem>
+              <SelectItem value="NCD">NCD</SelectItem>
+            </SelectContent>
+          </Select>
+          {errors.group && (
+            <p className="text-sm text-destructive">{errors.group.message}</p>
+          )}
+        </div>
+        
+        <div className="space-y-2">
           <Label>Invitation Type *</Label>
           <Select
             value={invitationType}
@@ -136,43 +215,17 @@ export default function FacultyInvitationForm({
               <SelectValue placeholder="Select invitation type" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="WORKSHOP">Workshop</SelectItem>
-              <SelectItem value="SOLO_TALK">Solo Talk</SelectItem>
-              <SelectItem value="PANELIST">Panelist</SelectItem>
-              <SelectItem value="MODERATOR">Moderator</SelectItem>
+              {availableCategories.map((category) => (
+                <SelectItem key={category.value} value={category.value}>
+                  {category.label}
+                </SelectItem>
+              ))}
             </SelectContent>
           </Select>
           {errors.invitationType && (
             <p className="text-sm text-destructive">
               {errors.invitationType.message}
             </p>
-          )}
-        </div>
-
-        <div className="space-y-2">
-          <Label>Group *</Label>
-          <Select
-            value={group}
-            onValueChange={(value) => {
-              if (!value) return
-
-              form.setValue('group', value as InvitationGroup, {
-                shouldDirty: true,
-                shouldValidate: true,
-              })
-            }}
-            disabled={loading}
-          >
-            <SelectTrigger className="w-full">
-              <SelectValue placeholder="Select group" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="MP">MP</SelectItem>
-              <SelectItem value="OUT_OF_MP">Out of MP</SelectItem>
-            </SelectContent>
-          </Select>
-          {errors.group && (
-            <p className="text-sm text-destructive">{errors.group.message}</p>
           )}
         </div>
 

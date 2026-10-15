@@ -1,11 +1,12 @@
 export const INVITATION_TYPES = [
   'WORKSHOP',
   'SOLO_TALK',
+  'SOLO_TALK_ALL_COMPLIMENTARY',
   'PANELIST',
   'MODERATOR',
 ] as const
 
-export const INVITATION_GROUPS = ['MP', 'OUT_OF_MP'] as const
+export const INVITATION_GROUPS = ['MP', 'OUT_OF_MP', 'NCD'] as const
 
 export const RESPONSE_STATUSES = ['PENDING', 'ACCEPTED', 'DECLINED'] as const
 
@@ -75,6 +76,18 @@ export interface SoloTalkInvitationPayload extends FacultyInvitationBasePayload 
   panelPeople?: never
 }
 
+
+/** POST /api/faculty-invitations — SOLO_TALK_ALL_COMPLIMENTARY payload. */
+export interface SoloTalkAllComplimentaryInvitationPayload
+  extends FacultyInvitationBasePayload {
+  invitationType: 'SOLO_TALK_ALL_COMPLIMENTARY'
+  topic: string
+  workshopName?: never
+  moderators?: never
+  coPanellists?: never
+  panelPeople?: never
+}
+
 /** POST /api/faculty-invitations — PANELIST payload. */
 export interface PanelistInvitationPayload extends FacultyInvitationBasePayload {
   invitationType: 'PANELIST'
@@ -99,6 +112,7 @@ export interface ModeratorInvitationPayload extends FacultyInvitationBasePayload
 export type FacultyInvitationPayload =
   | WorkshopInvitationPayload
   | SoloTalkInvitationPayload
+  | SoloTalkAllComplimentaryInvitationPayload
   | PanelistInvitationPayload
   | ModeratorInvitationPayload
 
