@@ -125,8 +125,14 @@ function formatInvitationType(type: InvitationType) {
       return 'Workshop'
     case 'PANELIST':
       return 'Panelist'
+    case 'PANELIST_ALL_COMPLIMENTARY':
+      return 'Panelist - All Complimentary'
+    case 'PANELIST_REIMBURSEMENT':
+      return 'Panelist - Reimbursement'
     case 'MODERATOR':
       return 'Moderator'
+    case 'MODERATOR_REIMBURSEMENT':
+      return 'Moderator - Reimbursement'
   }
 }
 
@@ -262,9 +268,7 @@ export default function FacultyInvitationClient() {
 
       const matchesSearch = !query || searchableText.includes(query)
 
-      return (
-        matchesType && matchesGroup && matchesStatus && matchesSearch
-      )
+      return matchesType && matchesGroup && matchesStatus && matchesSearch
     })
   }, [invitations, search, typeFilter, groupFilter, statusFilter])
 
@@ -357,9 +361,7 @@ export default function FacultyInvitationClient() {
     }
   }
 
-  const handleFormSubmit = async (
-    values: FacultyInvitationFormValues,
-  ) => {
+  const handleFormSubmit = async (values: FacultyInvitationFormValues) => {
     setFormLoading(true)
     setFormError('')
     setPageError('')
@@ -424,7 +426,6 @@ export default function FacultyInvitationClient() {
       setActionLoading(false)
     }
   }
-
 
   type InvitationPerson = {
     name: string
@@ -540,7 +541,9 @@ export default function FacultyInvitationClient() {
         cell: ({ row }: { row: { original: FacultyInvitation } }) => (
           <PeopleCell
             people={
-              row.original.invitationType === 'PANELIST'
+              row.original.invitationType === 'PANELIST' ||
+              row.original.invitationType === 'PANELIST_ALL_COMPLIMENTARY' ||
+              row.original.invitationType === 'PANELIST_REIMBURSEMENT'
                 ? row.original.moderators
                 : undefined
             }
@@ -554,7 +557,9 @@ export default function FacultyInvitationClient() {
         cell: ({ row }: { row: { original: FacultyInvitation } }) => (
           <PeopleCell
             people={
-              row.original.invitationType === 'PANELIST'
+              row.original.invitationType === 'PANELIST' ||
+              row.original.invitationType === 'PANELIST_ALL_COMPLIMENTARY' ||
+              row.original.invitationType === 'PANELIST_REIMBURSEMENT'
                 ? row.original.coPanellists
                 : undefined
             }
@@ -568,7 +573,8 @@ export default function FacultyInvitationClient() {
         cell: ({ row }: { row: { original: FacultyInvitation } }) => (
           <PeopleCell
             people={
-              row.original.invitationType === 'MODERATOR'
+              row.original.invitationType === 'MODERATOR' ||
+              row.original.invitationType === 'MODERATOR_REIMBURSEMENT'
                 ? row.original.panelPeople
                 : undefined
             }
@@ -707,9 +713,6 @@ export default function FacultyInvitationClient() {
     setStatusFilter('ALL')
   }
 
-
-
-
   const formatExcelDate = (value: string | null | undefined): string => {
     if (!value) return ''
 
@@ -721,8 +724,6 @@ export default function FacultyInvitationClient() {
 
     return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())} ${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}`
   }
-  
-
 
   const handleExport = async () => {
     try {
@@ -767,19 +768,19 @@ export default function FacultyInvitationClient() {
         return `"${safeText.replace(/"/g, '""')}"`
       }
 
-      
-const formatPeople = (
-  people:
-    | Array<{ name?: string; contact?: string; email?: string }>
-    | null
-    | undefined,
-): string =>
-  (people ?? [])
-    .map((person) =>
-      [person.name, person.contact, person.email].filter(Boolean).join(' - '),
-    )
-    .join('; ')
-
+      const formatPeople = (
+        people:
+          | Array<{ name?: string; contact?: string; email?: string }>
+          | null
+          | undefined,
+      ): string =>
+        (people ?? [])
+          .map((person) =>
+            [person.name, person.contact, person.email]
+              .filter(Boolean)
+              .join(' - '),
+          )
+          .join('; ')
 
       const csvRows = [
         headers.map(escapeCsv).join(','),
@@ -942,7 +943,16 @@ const formatPeople = (
                 Solo Talk - Reimbursement
               </SelectItem>
               <SelectItem value="PANELIST">Panelist</SelectItem>
+              <SelectItem value="PANELIST_ALL_COMPLIMENTARY">
+                Panelist - All Complimentary
+              </SelectItem>
+              <SelectItem value="PANELIST_REIMBURSEMENT">
+                Panelist - Reimbursement
+              </SelectItem>
               <SelectItem value="MODERATOR">Moderator</SelectItem>
+              <SelectItem value="MODERATOR_REIMBURSEMENT">
+                Moderator - Reimbursement
+              </SelectItem>
             </SelectContent>
           </Select>
 
@@ -1217,14 +1227,17 @@ const formatPeople = (
                       </div>
                     </div>
 
-                    {item.invitationType === 'PANELIST' && (
+                    {(item.invitationType === 'PANELIST' ||
+                      item.invitationType === 'PANELIST_ALL_COMPLIMENTARY' ||
+                      item.invitationType === 'PANELIST_REIMBURSEMENT') && (
                       <>
                         {people('Moderators', item.moderators ?? [])}
                         {people('Co-panellists', item.coPanellists ?? [])}
                       </>
                     )}
 
-                    {item.invitationType === 'MODERATOR' &&
+                    {(item.invitationType === 'MODERATOR' ||
+                      item.invitationType === 'MODERATOR_REIMBURSEMENT') &&
                       people('Panel People', item.panelPeople ?? [])}
 
                     <p className="text-xs text-muted-foreground">

@@ -4,7 +4,10 @@ export const INVITATION_TYPES = [
   'SOLO_TALK_REIMBURSEMENT',
   'SOLO_TALK_ALL_COMPLIMENTARY',
   'PANELIST',
+  'PANELIST_ALL_COMPLIMENTARY',
+  'PANELIST_REIMBURSEMENT',
   'MODERATOR',
+  'MODERATOR_REIMBURSEMENT',
 ] as const
 
 export const INVITATION_GROUPS = ['MP', 'OUT_OF_MP', 'NCD'] as const
@@ -78,8 +81,7 @@ export interface SoloTalkInvitationPayload extends FacultyInvitationBasePayload 
 }
 
 /** POST /api/faculty-invitations — SOLO_TALK_REIMBURSEMENT payload. */
-export interface SoloTalkReimbursementInvitationPayload
-  extends FacultyInvitationBasePayload {
+export interface SoloTalkReimbursementInvitationPayload extends FacultyInvitationBasePayload {
   invitationType: 'SOLO_TALK_REIMBURSEMENT'
   topic: string
   workshopName?: never
@@ -88,10 +90,8 @@ export interface SoloTalkReimbursementInvitationPayload
   panelPeople?: never
 }
 
-
 /** POST /api/faculty-invitations — SOLO_TALK_ALL_COMPLIMENTARY payload. */
-export interface SoloTalkAllComplimentaryInvitationPayload
-  extends FacultyInvitationBasePayload {
+export interface SoloTalkAllComplimentaryInvitationPayload extends FacultyInvitationBasePayload {
   invitationType: 'SOLO_TALK_ALL_COMPLIMENTARY'
   topic: string
   workshopName?: never
@@ -110,9 +110,48 @@ export interface PanelistInvitationPayload extends FacultyInvitationBasePayload 
   panelPeople?: never
 }
 
+/**
+ * POST /api/faculty-invitations — PANELIST_ALL_COMPLIMENTARY payload.
+ * Uses the same fields as a regular PANELIST invitation.
+ */
+export interface PanelistAllComplimentaryInvitationPayload extends FacultyInvitationBasePayload {
+  invitationType: 'PANELIST_ALL_COMPLIMENTARY'
+  topic: string
+  moderators: PanelPerson[]
+  coPanellists: PanelPerson[]
+  workshopName?: never
+  panelPeople?: never
+}
+
+/**
+ * POST /api/faculty-invitations — PANELIST_REIMBURSEMENT payload.
+ * Uses the same fields as a regular PANELIST invitation.
+ */
+export interface PanelistReimbursementInvitationPayload extends FacultyInvitationBasePayload {
+  invitationType: 'PANELIST_REIMBURSEMENT'
+  topic: string
+  moderators: PanelPerson[]
+  coPanellists: PanelPerson[]
+  workshopName?: never
+  panelPeople?: never
+}
+
 /** POST /api/faculty-invitations — MODERATOR payload. */
 export interface ModeratorInvitationPayload extends FacultyInvitationBasePayload {
   invitationType: 'MODERATOR'
+  topic: string
+  panelPeople: PanelPerson[]
+  workshopName?: never
+  moderators?: never
+  coPanellists?: never
+}
+
+/**
+ * POST /api/faculty-invitations — MODERATOR_REIMBURSEMENT payload.
+ * Uses the same fields as a regular MODERATOR invitation.
+ */
+export interface ModeratorReimbursementInvitationPayload extends FacultyInvitationBasePayload {
+  invitationType: 'MODERATOR_REIMBURSEMENT'
   topic: string
   panelPeople: PanelPerson[]
   workshopName?: never
@@ -127,7 +166,10 @@ export type FacultyInvitationPayload =
   | SoloTalkReimbursementInvitationPayload
   | SoloTalkAllComplimentaryInvitationPayload
   | PanelistInvitationPayload
+  | PanelistAllComplimentaryInvitationPayload
+  | PanelistReimbursementInvitationPayload
   | ModeratorInvitationPayload
+  | ModeratorReimbursementInvitationPayload
 
 /**
  * GET /api/faculty-invitations and GET /api/faculty-invitations/:id.

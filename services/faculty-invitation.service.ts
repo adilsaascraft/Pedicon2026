@@ -57,7 +57,6 @@ function normalizePanelPeople(
 export function buildFacultyInvitationPayload(
   values: FacultyInvitationFormValues,
 ): FacultyInvitationPayload {
-
   const allowedTypesByGroup: Record<
     InvitationGroup,
     readonly InvitationType[]
@@ -68,7 +67,10 @@ export function buildFacultyInvitationPayload(
       'SOLO_TALK_REIMBURSEMENT',
       'SOLO_TALK_ALL_COMPLIMENTARY',
       'PANELIST',
+      'PANELIST_ALL_COMPLIMENTARY',
+      'PANELIST_REIMBURSEMENT',
       'MODERATOR',
+      'MODERATOR_REIMBURSEMENT',
     ],
     MP: ['SOLO_TALK', 'PANELIST', 'MODERATOR', 'WORKSHOP'],
   }
@@ -110,10 +112,14 @@ export function buildFacultyInvitationPayload(
     }
   }
 
-  if (values.invitationType === 'PANELIST') {
+  if (
+    values.invitationType === 'PANELIST' ||
+    values.invitationType === 'PANELIST_ALL_COMPLIMENTARY' ||
+    values.invitationType === 'PANELIST_REIMBURSEMENT'
+  ) {
     return {
       ...common,
-      invitationType: 'PANELIST',
+      invitationType: values.invitationType,
       topic: values.topic.trim(),
       moderators: normalizePanelPeople(values.moderators),
       coPanellists: normalizePanelPeople(values.coPanellists),
@@ -122,7 +128,7 @@ export function buildFacultyInvitationPayload(
 
   return {
     ...common,
-    invitationType: 'MODERATOR',
+    invitationType: values.invitationType,
     topic: values.topic.trim(),
     panelPeople: normalizePanelPeople(values.panelPeople),
   }

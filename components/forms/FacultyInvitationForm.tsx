@@ -75,7 +75,19 @@ const INVITATION_CATEGORIES: Record<
       label: 'Solo Talk - All Complimentary',
     },
     { value: 'PANELIST', label: 'Panelist' },
+    {
+      value: 'PANELIST_ALL_COMPLIMENTARY',
+      label: 'Panelist - All Complimentary',
+    },
+    {
+      value: 'PANELIST_REIMBURSEMENT',
+      label: 'Panelist - Reimbursement',
+    },
     { value: 'MODERATOR', label: 'Moderator' },
+    {
+      value: 'MODERATOR_REIMBURSEMENT',
+      label: 'Moderator - Reimbursement',
+    },
   ],
 }
 
@@ -200,7 +212,7 @@ export default function FacultyInvitationForm({
             <p className="text-sm text-destructive">{errors.group.message}</p>
           )}
         </div>
-        
+
         <div className="space-y-2">
           <Label>Invitation Type *</Label>
           <Select
@@ -375,7 +387,9 @@ export default function FacultyInvitationForm({
         </div>
       </div>
 
-      {invitationType === 'PANELIST' && (
+      {(invitationType === 'PANELIST' ||
+        invitationType === 'PANELIST_ALL_COMPLIMENTARY' ||
+        invitationType === 'PANELIST_REIMBURSEMENT') && (
         <div className="space-y-4">
           <PeopleSection
             title="Moderators"
@@ -403,7 +417,8 @@ export default function FacultyInvitationForm({
         </div>
       )}
 
-      {invitationType === 'MODERATOR' && (
+      {(invitationType === 'MODERATOR' ||
+        invitationType === 'MODERATOR_REIMBURSEMENT') && (
         <PeopleSection
           title="Panellists"
           description="Add the panellists for the session being moderated."

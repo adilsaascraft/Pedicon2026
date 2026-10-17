@@ -18,7 +18,10 @@ export const facultyInvitationSchema = z
       'SOLO_TALK_REIMBURSEMENT',
       'SOLO_TALK_ALL_COMPLIMENTARY',
       'PANELIST',
+      'PANELIST_ALL_COMPLIMENTARY',
+      'PANELIST_REIMBURSEMENT',
       'MODERATOR',
+      'MODERATOR_REIMBURSEMENT',
     ]),
     group: z.enum(['MP', 'OUT_OF_MP', 'NCD']),
     name: z.string().trim().min(1, 'Faculty name is required'),
@@ -60,7 +63,11 @@ export const facultyInvitationSchema = z
       })
     }
 
-    if (values.invitationType === 'PANELIST') {
+    if (
+      values.invitationType === 'PANELIST' ||
+      values.invitationType === 'PANELIST_ALL_COMPLIMENTARY' ||
+      values.invitationType === 'PANELIST_REIMBURSEMENT'
+    ) {
       values.moderators.forEach((person, index) => {
         if (!person.name.trim()) {
           ctx.addIssue({
@@ -98,7 +105,10 @@ export const facultyInvitationSchema = z
       })
     }
 
-    if (values.invitationType === 'MODERATOR') {
+    if (
+      values.invitationType === 'MODERATOR' ||
+      values.invitationType === 'MODERATOR_REIMBURSEMENT'
+    ) {
       values.panelPeople.forEach((person, index) => {
         if (!person.name.trim()) {
           ctx.addIssue({
